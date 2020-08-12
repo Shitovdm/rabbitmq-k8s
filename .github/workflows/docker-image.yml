@@ -1,0 +1,24 @@
+name: Docker Image CI
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Login to GitHub Registry
+        run: echo ${{ secrets.GH_TOKEN }} | docker login docker.pkg.github.com -u ${{ secrets.GH_USERNAME }} --password-stdin
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
+      - name: Build the tagged Docker image
+        run: docker build . --file Dockerfile --tag docker.pkg.github.com/shitovdm/rabbitmq-k8s/rabbitmq:${{ steps.vars.outputs.tag }}
+      - name: Push the tagged Docker image
+        run: docker push docker.pkg.github.com/shitovdm/rabbitmq-k8s/rabbitmq:${{ steps.vars.outputs.tag }}
+      - name: Build the latest Docker image
+        run: docker build . --file Dockerfile --tag docker.pkg.github.com/shitovdm/rabbitmq-k8s/rabbitmq:latest
+      - name: Push the latest Docker image
+        run: docker push docker.pkg.github.com/shitovdm/rabbitmq-k8s/rabbitmq:latest
