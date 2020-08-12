@@ -1,0 +1,18 @@
+version: '3.1'
+
+networks:
+  rabbit:
+      external: true
+
+services:
+  rabbit:
+    build:
+      context: .
+    environment:
+      RABBITMQ_DEFAULT_USER: "${RABBIT_USER}"
+      RABBITMQ_DEFAULT_PASS: "${RABBIT_PASSWORD}"
+    ports:
+      - "${RABBIT_EXTERNAL_PORT}:5672"
+      - "${RABBIT_MANAGER_EXTERNAL_PORT}:15672"
+    networks:
+      - rabbit
